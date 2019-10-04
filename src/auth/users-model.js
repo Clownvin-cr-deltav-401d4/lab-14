@@ -50,7 +50,7 @@ users.post('save', async function() {
   } catch (err) {
     console.err(err);
   }
-})
+});
 
 users.statics.createFromOauth = function(email) {
 

@@ -27,7 +27,7 @@ authRouter.post('/signin', auth(), (req, res, next) => {
 
 authRouter.post('/settype', auth(), (req, res, next) => {
   if (req.user.role !== 'admin') {
-    return res.status(401).send("I'm sorry, I can't let you do that.");
+    return res.status(401).send('I\'m sorry, I can\'t let you do that.');
   }
   User.findOneAndUpdate({username: req.body.username}, {role: req.body.role}).then(() => {
     res.send('OK');

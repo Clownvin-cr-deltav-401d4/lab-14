@@ -1,6 +1,6 @@
 'use strict';
 
-process.env.SECRET="test";
+process.env.SECRET='test';
 
 const auth = require('../../../src/auth/middleware.js');
 const Users = require('../../../src/auth/users-model.js');
@@ -17,14 +17,14 @@ let users = {
   admin: {username: 'admin', password: 'password', role: 'admin'},
   editor: {username: 'editor', password: 'password', role: 'editor'},
   user: {username: 'user', password: 'password', role: 'user'},
-  visitor: {username: 'visitor', password: 'password', role: 'visitor'}
+  visitor: {username: 'visitor', password: 'password', role: 'visitor'},
 };
 
 const capabilities = {
   admin: ['create','read','update','delete'],
   editor: ['create', 'read', 'update'],
   user: ['read'],
-  visitor: []
+  visitor: [],
 };
 
 beforeAll(async () => {
@@ -35,10 +35,10 @@ describe('User capabilties with routes', () => {
 
   it('Anyone can access /public-stuff', () => {
     return mockRequest.get('/public-stuff')
-    .expect(200)
-    .then(result => {
-      expect(result.text).toBe('This is some public stuff');
-    });
+      .expect(200)
+      .then(result => {
+        expect(result.text).toBe('This is some public stuff');
+      });
   });
 
   it('Only logged in can access /hidden-stuff', () => {
@@ -72,14 +72,13 @@ describe('User capabilties with routes', () => {
             .set('Authorization', `Bearer ${token}`)
             .expect(500);
         default:
-            return mockRequest.get('/something-to-read')
+          return mockRequest.get('/something-to-read')
             .set('Authorization', `Bearer ${token}`)
             .expect(200)
             .then(results => {
               expect(results.text).toBe('Heres some text to read...');
             });
         }
-        expect(falsy).toBeTruthy(); //Make sure that switch doesn't fall through
       });
 
       it('have correct access to /create-a-thing', () => {
@@ -91,7 +90,7 @@ describe('User capabilties with routes', () => {
             .send('some stuff')
             .expect(500);
         default:
-            return mockRequest.post('/create-a-thing')
+          return mockRequest.post('/create-a-thing')
             .set('Authorization', `Bearer ${token}`)
             .send('some stuff')
             .expect(201)
@@ -99,7 +98,6 @@ describe('User capabilties with routes', () => {
               expect(results.text).toBe('It has been done');
             });
         }
-        expect(falsy).toBeTruthy(); //Make sure that switch doesn't fall through
       });
 
       it('have correct access to /update', () => {
@@ -111,7 +109,7 @@ describe('User capabilties with routes', () => {
             .send('some stuff')
             .expect(500);
         default:
-            return mockRequest.put('/update')
+          return mockRequest.put('/update')
             .set('Authorization', `Bearer ${token}`)
             .send('some stuff')
             .expect(201)
@@ -119,7 +117,6 @@ describe('User capabilties with routes', () => {
               expect(results.text).toBe('It has been done');
             });
         }
-        expect(falsy).toBeTruthy(); //Make sure that switch doesn't fall through
       });
 
       it('have correct access to /bye-bye', () => {
@@ -131,14 +128,13 @@ describe('User capabilties with routes', () => {
             .set('Authorization', `Bearer ${token}`)
             .expect(500);
         default:
-            return mockRequest.delete('/bye-bye')
+          return mockRequest.delete('/bye-bye')
             .set('Authorization', `Bearer ${token}`)
             .expect(200)
             .then(results => {
               expect(results.text).toBe('It has been done');
             });
         }
-        expect(falsy).toBeTruthy(); //Make sure that switch doesn't fall through
       });
     });
   });
