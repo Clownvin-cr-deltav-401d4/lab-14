@@ -18,6 +18,7 @@ module.exports = (capability) => {
           return _authError();
       }
     } catch (e) {
+      console.error(e);
       _authError();
     }
 
@@ -36,7 +37,9 @@ module.exports = (capability) => {
 
     function _authBearer(authString) {
       return User.authenticateToken(authString)
-        .then(user => _authenticate(user))
+        .then(user => {
+          return _authenticate(user);
+        })
         .catch(_authError);
     }
 

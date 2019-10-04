@@ -15,14 +15,26 @@ const users = new mongoose.Schema({
   username: {type:String, required:true, unique:true},
   password: {type:String, required:true},
   email: {type: String},
-  role: {type: String, default:'user', enum: ['admin','editor','user']},
+  role: {type: String, default:'user', enum: ['admin','editor','user','visitor']},
+}, {
+  toObject: { virtuals: true },
+  toJSON: { virtuals: true },
 });
 
-const capabilities = {
-  admin: ['create','read','update','delete'],
-  editor: ['create', 'read', 'update'],
-  user: ['read'],
-};
+users.virtual('acl', {
+  ref: 'roles',
+  localField: 'role',
+  foreignField: 'role',
+  justOne: true,
+});
+
+users.pre('findOne', function () {
+  try {
+    this.populate('acl');
+  } catch (err) {
+    console.err(err);
+  }
+});
 
 users.pre('save', async function() {
   if (this.isModified('password'))
@@ -30,6 +42,16 @@ users.pre('save', async function() {
     this.password = await bcrypt.hash(this.password, 10);
   }
 });
+
+users.post('save', async function() {
+  try {
+    await this.populate('acl').execPopulate();
+    return;
+  } catch (err) {
+    console.err(err);
+  }
+})
+
 users.statics.createFromOauth = function(email) {
 
   if(! email) { return Promise.reject('Validation Error'); }
@@ -48,7 +70,6 @@ users.statics.createFromOauth = function(email) {
 };
 
 users.statics.authenticateToken = function(token) {
-
   if ( usedTokens.has(token ) ) {
     return Promise.reject('Invalid Token');
   }
@@ -58,7 +79,10 @@ users.statics.authenticateToken = function(token) {
     (SINGLE_USE_TOKENS) && parsedToken.type !== 'key' && usedTokens.add(token);
     let query = {_id: parsedToken.id};
     return this.findOne(query);
-  } catch(e) { throw new Error('Invalid Token'); }
+  } catch(e) { 
+    console.err(e);
+    throw new Error('Invalid Token');
+  }
 
 };
 
@@ -78,11 +102,12 @@ users.methods.generateToken = function(type) {
 
   let token = {
     id: this._id,
-    capabilities: capabilities[this.role],
+    capabilities: (this.acl && this.acl.capabilities) || [],
     type: type || 'user',
   };
 
   let options = {};
+
   if ( type !== 'key' && !! TOKEN_EXPIRE ) {
     options = { expiresIn: TOKEN_EXPIRE };
   }
@@ -91,7 +116,7 @@ users.methods.generateToken = function(type) {
 };
 
 users.methods.can = function(capability) {
-  return capabilities[this.role].includes(capability);
+  return this.acl.capabilities.includes(capability);
 };
 
 users.methods.generateKey = function() {
