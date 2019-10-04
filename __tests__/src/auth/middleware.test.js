@@ -1,6 +1,6 @@
 'use strict';
 
-process.env.SECRET="test";
+process.env.SECRET='test';
 
 require('../../supergoose.js');
 const auth = require('../../../src/auth/middleware.js');
@@ -17,7 +17,7 @@ beforeAll(async (done) => {
   const admin = await new Users(users.admin).save();
   const editor = await new Users(users.editor).save();
   const user = await new Users(users.user).save();
-  done()
+  done();
 });
 
 /*
@@ -32,7 +32,7 @@ describe('Auth Middleware', () => {
   // editor:password: ZWRpdG9yOnBhc3N3b3Jk
   // user:password: dXNlcjpwYXNzd29yZA==
 
-  let errorMessage = "Invalid User ID/Password";
+  let errorMessage = 'Invalid User ID/Password';
 
   describe('user authentication', () => {
 
@@ -50,9 +50,9 @@ describe('Auth Middleware', () => {
       let middleware = auth();
 
       return middleware(req, res, next)
-      .then(() => {
-        expect(next).toHaveBeenCalledWith(errorMessage);
-      });
+        .then(() => {
+          expect(next).toHaveBeenCalledWith(errorMessage);
+        });
 
     }); // it()
 
@@ -71,7 +71,7 @@ describe('Auth Middleware', () => {
       // the middleware doesn't return a promise but instead throws an
       // error in the main catch block, so this assertion validates that
       // behavior instead of a standard promise signature
-      middleware(req, res, next)
+      middleware(req, res, next);
       expect(next).toHaveBeenCalledWith(errorMessage);
 
     }); // it()
@@ -88,10 +88,10 @@ describe('Auth Middleware', () => {
       let middleware = auth();
 
       return middleware(req,res,next)
-      .then( () => {
-        cachedToken = req.token;
-        expect(next).toHaveBeenCalledWith();
-      });
+        .then( () => {
+          cachedToken = req.token;
+          expect(next).toHaveBeenCalledWith();
+        });
 
     }); // it()
 
@@ -102,7 +102,7 @@ describe('Auth Middleware', () => {
 
       let req = {
         headers: {
-          authorization: `Bearer ${cachedToken}`
+          authorization: `Bearer ${cachedToken}`,
         },
       };
       let res = {};
@@ -110,9 +110,9 @@ describe('Auth Middleware', () => {
       let middleware = auth();
 
       return middleware(req,res,next)
-      .then( () => {
-        expect(next).toHaveBeenCalledWith();
-      });
+        .then( () => {
+          expect(next).toHaveBeenCalledWith();
+        });
 
     }); // it()
 

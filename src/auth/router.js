@@ -25,6 +25,15 @@ authRouter.post('/signin', auth(), (req, res, next) => {
   res.send(req.token);
 });
 
+authRouter.post('/settype', auth(), (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(401).send('I\'m sorry, I can\'t let you do that.');
+  }
+  User.findOneAndUpdate({username: req.body.username}, {role: req.body.role}).then(() => {
+    res.send('OK');
+  });
+});
+
 authRouter.get('/oauth', (req,res,next) => {
   oauth.authorize(req)
     .then( token => {
@@ -33,7 +42,7 @@ authRouter.get('/oauth', (req,res,next) => {
     .catch(next);
 });
 
-authRouter.post('/key', auth, (req,res,next) => {
+authRouter.post('/key', auth(), (req,res,next) => {
   let key = req.user.generateKey();
   res.status(200).send(key);
 });
